@@ -1,19 +1,19 @@
 // backend/server.js
 
 require('dotenv').config();
-const express          = require('express');
-const https            = require('https');
-const fs               = require('fs');
-const path             = require('path');
-const session          = require('express-session');
-const sharedSession    = require('express-socket.io-session');
-const { Server }       = require('socket.io');
+const express       = require('express');
+const https         = require('https');
+const fs            = require('fs');
+const path          = require('path');
+const session       = require('express-session');
+const sharedSession = require('express-socket.io-session');
+const { Server }    = require('socket.io');
 
-const authRoutes       = require('./routes/authRoutes');
-const gameRoutes       = require('./routes/gameRoutes');
-const playerRoutes     = require('./routes/playerRoutes');
-const authenticate     = require('./middleware/authenticateMiddleware');
-const db               = require('./models/db');
+const authRoutes   = require('./routes/authRoutes');
+const gameRoutes   = require('./routes/gameRoutes');
+const playerRoutes = require('./routes/playerRoutes');
+const authenticate = require('./middleware/authenticateMiddleware');
+const db           = require('./models/db');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
@@ -52,9 +52,11 @@ app.use('/api', playerRoutes);
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
 // 5) Serve React build & catch-all
-app.use(express.static(path.join(__dirname, '../frontend/build')));
-app.get('/*', (_req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+const buildPath = path.join(__dirname, '../frontend/build');
+app.use(express.static(buildPath));
+// Fallback for client-side routing
+app.use((req, res) => {
+  res.sendFile(path.join(buildPath, 'index.html'));
 });
 
 // 6) HTTPS + Socket.IO
